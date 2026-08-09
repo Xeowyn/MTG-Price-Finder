@@ -1,6 +1,5 @@
-// Parses raw OCR text from ML Kit to extract the most likely MTG card name.
-// Card names appear at the top of the card, before type line / mana cost.
-// They never contain special characters like {W} {U} {B} {R} {G} or numbers alone.
+// Takes the raw text the camera read off a card and figures out the card's name.
+// The name is always the first line on the card, above the mana cost and type line.
 
 const IGNORE_PATTERNS = [
   /^\d+$/,                    // pure numbers (power/toughness, mana values)
@@ -30,17 +29,10 @@ function shouldIgnoreLine(line) {
   return false;
 }
 
-/**
- * Given the array of text blocks returned by ML Kit TextRecognizer,
- * returns the best candidate for the card name.
- *
- * ML Kit returns blocks with a `frame` property: { x, y, width, height }
- * The card name is near the top of the image.
- */
+// Takes the text blocks ML Kit found in the photo and picks the most likely card name.
 export function extractCardName(blocks) {
   if (!blocks || blocks.length === 0) return null;
 
-  // Sort all lines by their Y position (top of image first)
   const allLines = [];
   for (const block of blocks) {
     for (const line of (block.lines || [])) {
@@ -51,6 +43,7 @@ export function extractCardName(blocks) {
     }
   }
 
+  // Put the lines in order from top of the image to bottom
   allLines.sort((a, b) => a.y - b.y);
 
   // The first non-ignored line is most likely the card name

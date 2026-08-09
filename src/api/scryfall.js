@@ -29,13 +29,12 @@ export async function fetchCardPrintings(oracleId) {
   return data.data || [];
 }
 
-// Format a Scryfall price into a display string
 export function formatPrice(value, currency = '$', suffix = '') {
   if (!value || value === '0.00') return 'N/A';
   return `${currency}${parseFloat(value).toFixed(2)}${suffix}`;
 }
 
-// Pull the structured price breakdown from a Scryfall card object
+// Groups a card's prices by store (TCGPlayer, CardMarket, Cardhoarder)
 export function getPrices(card) {
   const p = card.prices || {};
   return {
