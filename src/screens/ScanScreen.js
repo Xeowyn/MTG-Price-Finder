@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Linking,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -19,6 +20,12 @@ const COLORS = {
   overlay: 'rgba(0,0,0,0.5)',
   reticle: '#c9a84c',
 };
+
+const PHOTO_QUALITY = 0.8;
+const NAME_CROP_HEIGHT_FRACTION = 0.25;
+const CROPPED_IMAGE_WIDTH = 800;
+const CROPPED_IMAGE_COMPRESSION = 0.85;
+const RESULT_HINT_DELAY_MS = 800;
 
 // Expo Go can't load native modules like ML Kit, so we load it only if it's there.
 // This way the app still opens in Expo Go — scanning just won't work until a real build.
@@ -57,7 +64,7 @@ export default function ScanScreen({ navigation }) {
     setHint('Reading card...');
 
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+      const photo = await cameraRef.current.takePictureAsync({ quality: PHOTO_QUALITY });
 
       // Cut down to just the top of the card, where the name is printed
       const cropped = await ImageManipulator.manipulateAsync(
@@ -68,12 +75,12 @@ export default function ScanScreen({ navigation }) {
               originX: 0,
               originY: 0,
               width: photo.width,
-              height: Math.floor(photo.height * 0.25),
+              height: Math.floor(photo.height * NAME_CROP_HEIGHT_FRACTION),
             },
           },
-          { resize: { width: 800 } },
+          { resize: { width: CROPPED_IMAGE_WIDTH } },
         ],
-        { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
+        { compress: CROPPED_IMAGE_COMPRESSION, format: ImageManipulator.SaveFormat.JPEG }
       );
 
       const result = await TextRecognizer.recognize(cropped.uri);
@@ -92,7 +99,7 @@ export default function ScanScreen({ navigation }) {
         navigation.navigate('Result', { cardName });
         setProcessing(false);
         setHint('Frame the card name at the top');
-      }, 800);
+      }, RESULT_HINT_DELAY_MS);
     } catch (err) {
       console.error('Scan error:', err);
       setHint('Error reading card — try again');
@@ -109,6 +116,20 @@ export default function ScanScreen({ navigation }) {
   }
 
   if (!permission.granted) {
+    // On Android, once the user picks "Don't ask again", requestPermission() can't
+    // prompt anymore — the only way back in is the phone's own Settings screen.
+    if (permission.canAskAgain === false) {
+      return (
+        <View style={styles.center}>
+          <Text style={styles.permText}>
+            Camera access is turned off for this app. Turn it on in your phone's Settings to scan cards.
+          </Text>
+          <TouchableOpacity style={styles.permBtn} onPress={() => Linking.openSettings()}>
+            <Text style={styles.permBtnText}>Open Settings</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
     return (
       <View style={styles.center}>
         <Text style={styles.permText}>Camera permission is needed to scan cards.</Text>

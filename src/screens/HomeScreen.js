@@ -11,7 +11,9 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { fetchAutocompleteSuggestions } from '../api/scryfall';
+import { fetchAutocompleteSuggestions, MIN_AUTOCOMPLETE_QUERY_LENGTH } from '../api/scryfall';
+
+const MAX_SUGGESTIONS_SHOWN = 8;
 
 const COLORS = {
   bg: '#0e0e0e',
@@ -32,14 +34,14 @@ export default function HomeScreen({ navigation }) {
 
   const onChangeText = useCallback(async (text) => {
     setQuery(text);
-    if (text.length < 2) {
+    if (text.length < MIN_AUTOCOMPLETE_QUERY_LENGTH) {
       setSuggestions([]);
       return;
     }
     setLoading(true);
     try {
       const results = await fetchAutocompleteSuggestions(text);
-      setSuggestions(results.slice(0, 8));
+      setSuggestions(results.slice(0, MAX_SUGGESTIONS_SHOWN));
     } catch {
       setSuggestions([]);
     } finally {

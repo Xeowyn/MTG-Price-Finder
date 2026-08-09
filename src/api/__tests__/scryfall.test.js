@@ -119,13 +119,13 @@ describe('fetchCardByName', () => {
     await expect(fetchCardByName('Xyz')).rejects.toThrow('Card not found: "Xyz"');
   });
 
-  test('does not crash when the API returns an error status with a non-JSON body', async () => {
+  test('shows a friendly message, not a raw parse error, when the API returns a non-JSON error body', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: false,
       status: 500,
       json: () => Promise.reject(new SyntaxError('Unexpected token < in JSON')),
     });
-    await expect(fetchCardByName('Anything')).rejects.toThrow();
+    await expect(fetchCardByName('Anything')).rejects.toThrow('Card not found: "Anything"');
   });
 
   test('rejects when the network is unreachable', async () => {

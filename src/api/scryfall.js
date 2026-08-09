@@ -1,17 +1,26 @@
 const BASE = 'https://api.scryfall.com';
 
+// Scryfall's autocomplete needs at least this many letters to return useful results
+export const MIN_AUTOCOMPLETE_QUERY_LENGTH = 2;
+
 // Looks up a card by name. Works even with typos or a partial name.
 export async function fetchCardByName(name) {
   const res = await fetch(`${BASE}/cards/named?fuzzy=${encodeURIComponent(name)}`);
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.details || `Card not found: "${name}"`);
+    let message = `Card not found: "${name}"`;
+    try {
+      const err = await res.json();
+      if (err.details) message = err.details;
+    } catch {
+      // API sent back something that wasn't JSON — just use the generic message above
+    }
+    throw new Error(message);
   }
   return res.json();
 }
 
 export async function fetchAutocompleteSuggestions(query) {
-  if (!query || query.length < 2) return [];
+  if (!query || query.length < MIN_AUTOCOMPLETE_QUERY_LENGTH) return [];
   const res = await fetch(`${BASE}/cards/autocomplete?q=${encodeURIComponent(query)}`);
   if (!res.ok) return [];
   const data = await res.json();

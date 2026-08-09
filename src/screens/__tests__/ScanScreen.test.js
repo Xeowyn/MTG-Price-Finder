@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Linking } from 'react-native';
 import { render, fireEvent, screen } from '@testing-library/react-native';
 import { useCameraPermissions } from 'expo-camera';
 import ScanScreen from '../ScanScreen';
@@ -44,6 +44,16 @@ test('shows a permission request screen when camera access is denied', async () 
   expect(screen.getByText('Camera permission is needed to scan cards.')).toBeTruthy();
   await fireEvent.press(screen.getByText('Grant Permission'));
   expect(requestPermission).toHaveBeenCalled();
+});
+
+test('sends the user to Settings when permission was permanently denied', async () => {
+  const openSettings = jest.spyOn(Linking, 'openSettings').mockImplementation(() => {});
+  useCameraPermissions.mockReturnValue([{ granted: false, canAskAgain: false }, jest.fn()]);
+  await render(<ScanScreen navigation={makeNavigation()} />);
+
+  expect(screen.getByText(/Turn it on in your phone's Settings/)).toBeTruthy();
+  await fireEvent.press(screen.getByText('Open Settings'));
+  expect(openSettings).toHaveBeenCalled();
 });
 
 test('shows the camera view once permission is granted', async () => {
