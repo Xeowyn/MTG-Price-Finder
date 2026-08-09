@@ -20,13 +20,13 @@ const COLORS = {
   reticle: '#c9a84c',
 };
 
-// ML Kit is loaded lazily so the app still loads in Expo Go (where native modules
-// aren't available). In a dev build it will work fully.
+// Expo Go can't load native modules like ML Kit, so we load it only if it's there.
+// This way the app still opens in Expo Go — scanning just won't work until a real build.
 let TextRecognizer = null;
 try {
   TextRecognizer = require('@react-native-ml-kit/text-recognition').default;
 } catch {
-  // Running in Expo Go — OCR unavailable, camera preview still works
+  // Not available — we're in Expo Go
 }
 
 export default function ScanScreen({ navigation }) {
@@ -57,10 +57,9 @@ export default function ScanScreen({ navigation }) {
     setHint('Reading card...');
 
     try {
-      // Capture photo
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
 
-      // Crop to top ~25% of image where the card name lives
+      // Cut down to just the top of the card, where the name is printed
       const cropped = await ImageManipulator.manipulateAsync(
         photo.uri,
         [
@@ -77,7 +76,6 @@ export default function ScanScreen({ navigation }) {
         { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
       );
 
-      // Run ML Kit OCR
       const result = await TextRecognizer.recognize(cropped.uri);
       const cardName = extractCardName(result.blocks);
 
@@ -89,7 +87,7 @@ export default function ScanScreen({ navigation }) {
 
       setHint(`Found: "${cardName}"`);
 
-      // Small pause so user can see what was detected
+      // Wait a moment so the user can see what card name was found before moving on
       setTimeout(() => {
         navigation.navigate('Result', { cardName });
         setProcessing(false);

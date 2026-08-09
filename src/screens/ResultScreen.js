@@ -26,7 +26,7 @@ const COLORS = {
   blue: '#4a90d9',
 };
 
-// MTG color identity → border color map
+// Border color for each mana color
 const MANA_COLORS = {
   W: '#f9f6de',
   U: '#7ab4e0',
@@ -74,7 +74,7 @@ function PriceCell({ label, value }) {
 
 function ManaCost({ cost }) {
   if (!cost) return null;
-  // Strip the {X} notation for display
+  // Mana cost comes as "{2}{U}{U}" — turn it into "2 U U " for display
   const cleaned = cost.replace(/\{/g, '').replace(/\}/g, ' ').trim();
   return <Text style={styles.manaCost}>{cleaned}</Text>;
 }
@@ -101,7 +101,7 @@ export default function ResultScreen({ route, navigation }) {
       setPrices(getPrices(data));
       setSelectedPrinting(data);
 
-      // Load all printings in background
+      // Fetch other printings without making the user wait for them
       if (data.oracle_id) {
         fetchCardPrintings(data.oracle_id).then(all => {
           setPrintings(all.slice(0, 20));

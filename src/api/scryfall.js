@@ -1,6 +1,6 @@
 const BASE = 'https://api.scryfall.com';
 
-// Fuzzy card name search — tolerates typos and partial names
+// Looks up a card by name. Works even with typos or a partial name.
 export async function fetchCardByName(name) {
   const res = await fetch(`${BASE}/cards/named?fuzzy=${encodeURIComponent(name)}`);
   if (!res.ok) {
@@ -10,7 +10,6 @@ export async function fetchCardByName(name) {
   return res.json();
 }
 
-// Autocomplete suggestions for the search bar
 export async function fetchAutocompleteSuggestions(query) {
   if (!query || query.length < 2) return [];
   const res = await fetch(`${BASE}/cards/autocomplete?q=${encodeURIComponent(query)}`);
@@ -19,7 +18,7 @@ export async function fetchAutocompleteSuggestions(query) {
   return data.data || [];
 }
 
-// All printings of a card (for different set prices)
+// Gets every set a card has been printed in, so we can show prices for each one
 export async function fetchCardPrintings(oracleId) {
   const res = await fetch(
     `${BASE}/cards/search?q=oracleid%3A${oracleId}&order=released&unique=prints`
