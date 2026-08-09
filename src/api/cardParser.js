@@ -21,10 +21,11 @@ function shouldIgnoreLine(line) {
   for (const pattern of IGNORE_PATTERNS) {
     if (pattern.test(trimmed)) return true;
   }
-  // Skip type lines
+  // Skip type lines, but only match whole words — otherwise a card
+  // like "Wasteland" would get wrongly thrown out because it contains "land"
   const lower = trimmed.toLowerCase();
   for (const kw of TYPE_KEYWORDS) {
-    if (lower.includes(kw)) return true;
+    if (new RegExp(`\\b${kw}\\b`).test(lower)) return true;
   }
   return false;
 }
