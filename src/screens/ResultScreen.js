@@ -10,7 +10,7 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import { fetchCardByName, fetchCardPrintings, getPrices } from '../api/scryfall';
+import { fetchCardByName, fetchCardPrintings, getPrices, formatPrice } from '../api/scryfall';
 
 const COLORS = {
   bg: '#0e0e0e',
@@ -196,7 +196,7 @@ export default function ResultScreen({ route, navigation }) {
           <View style={styles.priceDivider} />
           <PriceRow
             label={prices.cardhoarder.label}
-            normal={prices.cardhoarder.normal ? `${prices.cardhoarder.normal} tix` : 'N/A'}
+            normal={prices.cardhoarder.normal}
             foil="N/A"
             url={prices.cardhoarder.url}
           />
@@ -225,9 +225,7 @@ export default function ResultScreen({ route, navigation }) {
                   <Text style={styles.printingSet} numberOfLines={2}>
                     {p.set_name}
                   </Text>
-                  <Text style={styles.printingPrice}>
-                    {p.prices?.usd ? `$${parseFloat(p.prices.usd).toFixed(2)}` : '—'}
-                  </Text>
+                  <Text style={styles.printingPrice}>{formatPrice(p.prices?.usd)}</Text>
                 </TouchableOpacity>
               );
             })}

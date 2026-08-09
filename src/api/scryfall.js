@@ -30,9 +30,9 @@ export async function fetchCardPrintings(oracleId) {
 }
 
 // Format a Scryfall price into a display string
-export function formatPrice(value, currency = '$') {
+export function formatPrice(value, currency = '$', suffix = '') {
   if (!value || value === '0.00') return 'N/A';
-  return `${currency}${parseFloat(value).toFixed(2)}`;
+  return `${currency}${parseFloat(value).toFixed(2)}${suffix}`;
 }
 
 // Pull the structured price breakdown from a Scryfall card object
@@ -54,7 +54,7 @@ export function getPrices(card) {
     },
     cardhoarder: {
       label: 'Cardhoarder (MTGO)',
-      normal: formatPrice(p.tix, ''),
+      normal: formatPrice(p.tix, '', ' tix'),
       url: card.purchase_uris?.cardhoarder,
     },
   };
