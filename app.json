@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "MTG Price Finder",
+    "slug": "mtg-price-finder",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "bundleIdentifier": "com.xeowyn.mtgpricefinder",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Used to scan Magic: The Gathering cards and look up their prices.",
+        "NSPhotoLibraryUsageDescription": "Used to import card photos for price lookup."
+      }
+    },
+    "android": {
+      "package": "com.xeowyn.mtgpricefinder",
+      "adaptiveIcon": {
+        "backgroundColor": "#0e0e0e",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow MTG Price Finder to use your camera to scan cards."
+        }
+      ]
+    ]
+  }
+}
