@@ -1,14 +1,23 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './src/screens/HomeScreen';
 import ScanScreen from './src/screens/ScanScreen';
 import ResultScreen from './src/screens/ResultScreen';
 
-const Stack = createNativeStackNavigator();
+// Using the plain-JS stack navigator (not native-stack) because native-stack's
+// header crashes on web (relies on react-native-screens internals that aren't
+// implemented there) -- this version works the same on phone and in a browser.
+const Stack = createStackNavigator();
 
+// Spreading React Navigation's own DarkTheme first because it carries a
+// `fonts` object the header needs (added as a required theme field in v7) --
+// without it, opening any screen with a header crashes reading `fonts.bold`.
+// Only `colors` is actually customized here.
 const THEME = {
+  ...DarkTheme,
   dark: true,
   colors: {
+    ...DarkTheme.colors,
     primary: '#c9a84c',
     background: '#0e0e0e',
     card: '#1a1a1a',
