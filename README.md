@@ -4,7 +4,19 @@ A phone app for Magic: The Gathering players. Point your camera at a card, and i
 
 ## How to run it
 
-**Quickest way — test the search feature in your browser, no phone needed:**
+This is a phone app, so a phone (or a phone emulator) is the only way to try the camera-scanning feature — that's a hardware limitation, not a packaging choice. But the search-and-price-lookup half of the app works in any browser, no install or phone needed at all:
+
+**[Try it now — xeowyn.github.io/MTG-Price-Finder](https://xeowyn.github.io/MTG-Price-Finder/)** — no download, just click the link. Type a card name and see live prices. (The "Scan a Card" button is there too, but a browser can't use a phone's camera the way this app needs, so it'll explain that instead of opening a camera.)
+
+**To try the camera scanning on your own phone:**
+
+1. Install the **Expo Go** app from the App Store or Play Store
+2. Run `npx expo start` in the project folder
+3. Scan the QR code that shows up with your phone
+
+Camera preview works in Expo Go, but reading the card name (OCR) needs the full app build below — Expo Go will show a message explaining this if you try to scan.
+
+**Prefer to run the web version locally instead of the hosted link?**
 
 ```bash
 git clone https://github.com/Xeowyn/MTG-Price-Finder.git
@@ -12,16 +24,6 @@ cd MTG-Price-Finder
 npm install
 npx expo start --web
 ```
-
-This opens the app in your browser. You can search for cards and see prices. Camera scanning won't work in a browser, but everything else does.
-
-**To test on your own phone (camera scanning works here):**
-
-1. Install the **Expo Go** app from the App Store or Play Store
-2. Run `npx expo start` in the project folder
-3. Scan the QR code that shows up with your phone
-
-Camera preview works in Expo Go, but reading the card name (OCR) needs the full app build below — Expo Go will show a message explaining this if you try to scan.
 
 **Full build with working camera scan (Android, needs Android Studio):**
 
