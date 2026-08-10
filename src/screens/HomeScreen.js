@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
 import { fetchAutocompleteSuggestions, MIN_AUTOCOMPLETE_QUERY_LENGTH } from '../api/scryfall';
 
 const MAX_SUGGESTIONS_SHOWN = 8;
+const AUTOCOMPLETE_DEBOUNCE_MS = 300;
 
 const COLORS = {
   bg: '#0e0e0e',
@@ -31,22 +32,37 @@ export default function HomeScreen({ navigation }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const debounceTimer = useRef(null);
+  const latestQuery = useRef('');
 
-  const onChangeText = useCallback(async (text) => {
+  // Firing an API call on every single keystroke ("f", "fi", "fir", "fire"...)
+  // sends a burst of requests for one typed word -- waiting until the user
+  // pauses cuts that down to roughly one request per pause instead of one per
+  // letter. latestQuery guards against an older, slower request overwriting
+  // the suggestions for whatever the user has since typed.
+  const onChangeText = useCallback((text) => {
     setQuery(text);
+    latestQuery.current = text;
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
     if (text.length < MIN_AUTOCOMPLETE_QUERY_LENGTH) {
       setSuggestions([]);
       return;
     }
-    setLoading(true);
-    try {
-      const results = await fetchAutocompleteSuggestions(text);
-      setSuggestions(results.slice(0, MAX_SUGGESTIONS_SHOWN));
-    } catch {
-      setSuggestions([]);
-    } finally {
-      setLoading(false);
-    }
+
+    debounceTimer.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const results = await fetchAutocompleteSuggestions(text);
+        if (latestQuery.current === text) {
+          setSuggestions(results.slice(0, MAX_SUGGESTIONS_SHOWN));
+        }
+      } catch {
+        if (latestQuery.current === text) setSuggestions([]);
+      } finally {
+        if (latestQuery.current === text) setLoading(false);
+      }
+    }, AUTOCOMPLETE_DEBOUNCE_MS);
   }, []);
 
   const onSearch = useCallback((name) => {
